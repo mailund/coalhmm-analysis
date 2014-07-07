@@ -1,0 +1,9 @@
+Package: coalhmm
+Type: Package
+Title: Code for analysing the results of CoalHMM runs
+Version: 1.0
+Date: 2014-07-07
+Author: Thomas Mailund
+Maintainer: Thomas Mailund <mailund@birc.au.dk>
+Description: Code for analysing the results of CoalHMM runs
+License: GPLv3
