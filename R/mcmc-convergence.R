@@ -97,6 +97,11 @@ convergence_probabilities <- function(rejections, a=1, b=1) {
 #' Computes convergence diagnistics based on the \code{convergence_t_tests} diagnostics and finds the
 #' most likely convergence point using \code{convergence_probabilities}.
 #' 
+#' @param samples        Samples from a CoalHMM MCMC run.
+#' @param window_size    Window size used for the convergence diagnostics.
+#' @param a              Meta-parameter for the prior probability of rejection before convergence.
+#' @param b              Meta-parameter for the prior probability of rejection before convergence.
+#' 
 #' @export
 convergence_diagnostics <- function(samples, window_size = nrow(samples)/10, a = 1, b = 1) {
   p_vals <- convergence_t_tests(samples, window_size)
