@@ -7,3 +7,4 @@ Author: Thomas Mailund
 Maintainer: Thomas Mailund <mailund@birc.au.dk>
 Description: Code for analysing the results of CoalHMM runs
 License: GPLv3
+Depends: reshape2, ggplot2

@@ -84,11 +84,12 @@ convergence_probabilities <- function(rejections, a=1, b=1) {
   }
   not_converged <- prod(beta(a + rejections, b + (1 - rejections)))
   
-  # The probability that we have not converged should be weighted with all the observations
-  # otherwise it depends on the number of windows seen.
-  prob_not_converged = not_converged / (sum(probabilities) + not_converged)
+  total_probability <- sum(probabilities) + not_converged
   
-  list(change_point_probabilities = probabilities, prob_not_converged = prob_not_converged)
+  result <- list(change_probabilities = probabilities / total_probability,
+                 not_converged = not_converged / total_probability)
+  
+  return(result)
 }
 
 #' @title Computes convergence diagnostics
@@ -107,22 +108,23 @@ convergence_diagnostics <- function(samples, window_size = nrow(samples)/10, a =
   p_vals <- convergence_t_tests(samples, window_size)
   converged <- rejected_convergence(p_vals)
   change_probs <- convergence_probabilities(converged$rejected)
-  converged$change_point_probabilities <- change_probs$change_point_probabilities
+  converged$change_point_probabilities <- change_probs$change_probabilities
   change_point <- converged$window.end[which.max(converged$change_point_probabilities)]
     
-  result <- list(prob_not_converged = change_probs$prob_not_converged, 
-                 convergence = converged, convergence_point = change_point)
+  result <- list(convergence = converged, convergence_point = change_point,
+                 not_converged = change_probs$not_converged)
   class(result) <- "convergence_diag"
   
   return(result)
 }
 
 plot.convergence_diag <- function(diag, ...) {
+  ylim = range(c(diag$convergence$change_point_probabilities, diag$not_converged))
   plot(diag$convergence$window.end, diag$convergence$change_point_probabilities,
        main='Convergence point probabilities',
-       sub=paste('Probability of convergence: ', round(1 - diag$prob_not_converged, digits=2)),
        xlab='Convergence point', ylab='Convergence probability',
-       type='o', pch=20,
+       type='o', pch=20, ylim=ylim,
        ...)
   abline(v=diag$convergence_point, col='red', lty='dashed')
+  abline(h=diag$not_converged, col='red', lty='dashed')
 }

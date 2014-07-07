@@ -20,3 +20,23 @@ parameter_samples <- function(samples) {
   samples[,!(names(samples) %in% c("log.prior","log.likelihood","log.posterior"))]
 }
 
+#' @title Creates an object for manipulating CoalHMM MCMC chains
+#' 
+#' @param samples   Samples from a CoalHMM MCMC run.
+#' @return The samples wrapped as an object of class "coalhmm_chain".
+#' @export
+coalhmm_chain <- function(samples) {
+  samples$sample <- 1:nrow(samples)
+  class(samples) <- c('coalhmm_chain', 'data.frame')
+  return(samples)
+}
+
+plot.coalhmm_chain <- function(chain, ...) {
+  convergence_diag <- convergence_diagnostics(chain, ...)
+  convergence_point <- convergence_diag$convergence_point
+  parameters <- parameter_samples(chain)
+  melted <- melt(parameters, id='sample')
+  ggplot(melted, aes(x=sample, y=value)) + geom_point() + 
+    facet_grid(variable~., scales = "free_y") + geom_smooth(method="loess") +
+    geom_vline(xintercept=convergence_point, color='red')
+}
