@@ -6,6 +6,15 @@
 convergence_diagnostics(samples, window_size = nrow(samples)/10, a = 1,
   b = 1)
 }
+\arguments{
+\item{samples}{Samples from a CoalHMM MCMC run.}
+
+\item{window_size}{Window size used for the convergence diagnostics.}
+
+\item{a}{Meta-parameter for the prior probability of rejection before convergence.}
+
+\item{b}{Meta-parameter for the prior probability of rejection before convergence.}
+}
 \description{
 Computes convergence diagnistics based on the \code{convergence_t_tests} diagnostics and finds the
 most likely convergence point using \code{convergence_probabilities}.
