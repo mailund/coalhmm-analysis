@@ -128,3 +128,14 @@ plot.convergence_diag <- function(diag, ...) {
   abline(v=diag$convergence_point, col='red', lty='dashed')
   abline(h=diag$not_converged, col='red', lty='dashed')
 }
+
+#' @title Remove the estimated burn-in samples
+#' 
+#' @description
+#' Estimate the convergence point of the chain and remove the burn-in samples.
+#' 
+#' @export
+strip_burnin <- function(samples, ...) {
+  diag <- convergence_diagnostics(samples, ...)
+  return(samples[diag$convergence_point:nrow(samples),])
+}

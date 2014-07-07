@@ -41,3 +41,25 @@ model_likelihood <- function(samples, burn.in = 0) {
   # P(D | M) = 1/"harmonic mean" so log(P(D | M)) = log(1) - log("harmonic mean")
   -log.harmonic.mean
 }
+
+#' @title Compute the Bayes factor between two models.
+#' 
+#' @details
+#' Computes the model likelihood for two different models and returns the Bayes factor comparing the
+#' two models.
+#' 
+#' @details
+#' The function first strips off the estimated burn-in period for both models and then computes the
+#' model likelihood. It then computes the Bayes factor between the two models.
+#' 
+#' @param samples1    CoalHMM MCMC samples from the first model.
+#' @param samples2    CoalHMM MCMC samples from the second model.
+#' 
+#' @return Bayes factor \eqn{P(D | M1) / P(D | M2)}.
+#' 
+#' @export
+bayes_factor <- function(samples1, samples2, ...) {
+  loglik1 <- model_likelihood(strip_burnin(samples1, ...))
+  loglik2 <- model_likelihood(strip_burnin(samples2, ...))
+  return(exp(loglik1 - loglik2))
+}
