@@ -28,7 +28,7 @@
 #' @return The model log-likelihood \eqn{\log P(D | M)}.
 #' 
 #' @export
-model.likelihood <- function(samples, burn.in = 0) {
+model_likelihood <- function(samples, burn.in = 0) {
   
   # Discard burn-in samples.
   log.likelihoods <- samples$log.likelihood[(1+burn.in):nrow(samples)]
