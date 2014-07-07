@@ -5,7 +5,22 @@
 \usage{
 convergence_t_tests(samples, window_size = nrow(samples)/10)
 }
+\arguments{
+\item{samples}{Samples from a CoalHMM MCMC run.}
+
+\item{window_size}{Size of windows to use in the t-tests.}
+}
+\value{
+A data frame with p-values for the t-tests in each window.
+}
 \description{
-Computes convergence diagnistics
+Computes a very simple convergence diagnistic based on a t-test for equal means for different
+windows of the chain. For each window, each parameter is compared with the samples from the last
+half of the data and the t-test p-value is computed.
+}
+\details{
+Keep in mind that this function only compare means. It is not a complete diagnistic of convergence
+since samples from two windows can be very different and still have the same mean. Generally, though,
+the CoalHMM runs tends to have very different means if they are not converged.
 }
 

@@ -38,3 +38,86 @@ convergence_t_tests <- function(samples, window_size = nrow(samples)/10) {
   
   return(p_values)
 }
+
+#' @title Determines if the diagnistics means that we reject convergence.
+#' 
+#' @description
+#' Since the t-test diagnostics give a p-value per parameter we use this function to determine
+#' if the parameters combined leads us to reject convergence. This is simply done by correcting
+#' for multiple tests and then using the smallest p-value per row.
+#' 
+#' @param convergence_p_values  P-values computed as in \code{convergence_t_tests}.
+#' @return A data frame with a row per window specifying if convergence was rejected.
+#' 
+#' @export
+rejected_convergence <- function(convergence_p_values) {
+  
+  # Bonferroni correction for multiple tests
+  no_parameters <- ncol(convergence_p_values) - 2
+  adjusted_p_values <- convergence_p_values[,-c(1,2)] * no_parameters
+  
+  data.frame(convergence_p_values[,c(1,2)],
+             rejected = apply(adjusted_p_values, 1, function(x) any(x < 0.05)))
+}
+
+#' @title Computes the probability of convergence at each windows
+#' 
+#' @description
+#' Computes the probability, at each window, that the chain was converged at that point, assuming
+#' that the \emph{has} converged at some window.
+#' 
+#' @details
+#' Computes the probability that convergence happened at a given point based on the pattern of 
+#' rejected convergence tests. It assumes that the rejection is picked with a probability that is
+#' beta(a,b) distributed before the change point and rejected with 5% probability after the change
+#' point.
+#' 
+#' @export
+convergence_probabilities <- function(rejections, a=1, b=1) {
+  no_points <- length(rejections)
+  probabilities <- numeric(no_points)
+  probabilities[1] <- prod(0.05**rejections)
+  for (point in 2:no_points) {
+    before <- rejections[1:(point-1)]
+    after <- rejections[point:no_points]
+    probabilities[point] <- prod(beta(a + before, b + (1 - before))) * prod(0.05**after)
+  }
+  not_converged <- prod(beta(a + rejections, b + (1 - rejections)))
+  
+  # The probability that we have not converged should be weighted with all the observations
+  # otherwise it depends on the number of windows seen.
+  prob_not_converged = not_converged / (sum(probabilities) + not_converged)
+  
+  list(change_point_probabilities = probabilities, prob_not_converged = prob_not_converged)
+}
+
+#' @title Computes convergence diagnostics
+#' 
+#' @description
+#' Computes convergence diagnistics based on the \code{convergence_t_tests} diagnostics and finds the
+#' most likely convergence point using \code{convergence_probabilities}.
+#' 
+#' @export
+convergence_diagnostics <- function(samples, window_size = nrow(samples)/10, a = 1, b = 1) {
+  p_vals <- convergence_t_tests(samples, window_size)
+  converged <- rejected_convergence(p_vals)
+  change_probs <- convergence_probabilities(converged$rejected)
+  converged$change_point_probabilities <- change_probs$change_point_probabilities
+  change_point <- converged$window.end[which.max(converged$change_point_probabilities)]
+    
+  result <- list(prob_not_converged = change_probs$prob_not_converged, 
+                 convergence = converged, convergence_point = change_point)
+  class(result) <- "convergence_diag"
+  
+  return(result)
+}
+
+plot.convergence_diag <- function(diag, ...) {
+  plot(diag$convergence$window.end, diag$convergence$change_point_probabilities,
+       main='Convergence point probabilities',
+       sub=paste('Probability of convergence: ', round(1 - diag$prob_not_converged, digits=2)),
+       xlab='Convergence point', ylab='Convergence probability',
+       type='o', pch=20,
+       ...)
+  abline(v=diag$convergence_point, col='red', lty='dashed')
+}
