@@ -35,6 +35,7 @@ plot.coalhmm_chain <- function(chain, ...) {
   convergence_diag <- convergence_diagnostics(chain, ...)
   convergence_point <- convergence_diag$convergence_point
   parameters <- parameter_samples(chain)
+  parameters$sample <- chain$sample
   melted <- melt(parameters, id='sample')
   ggplot(melted, aes(x=sample, y=value)) + geom_point() + 
     facet_grid(variable~., scales = "free_y") + geom_smooth(method="loess") +
