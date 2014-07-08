@@ -69,3 +69,4 @@ plot.coalhmm_chain_summary <- function(chain_summary) {
   ggplot(data=melt(chain_summary$parameters)) + geom_histogram(aes(x=value)) +
     facet_grid(. ~ variable, scale="free") + theme_bw()
 }
+

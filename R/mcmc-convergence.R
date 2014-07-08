@@ -16,7 +16,7 @@
 #' @return A data frame with p-values for the t-tests in each window.
 #' 
 #' @export
-convergence_t_tests <- function(samples, window_size = nrow(samples)/10) {
+convergence_t_tests <- function(samples, window_size = nrow(samples)/20) {
   parameters <- parameter_samples(samples)
   
   no_windows <- floor(nrow(samples)/window_size/2)
@@ -104,7 +104,7 @@ convergence_probabilities <- function(rejections, a=1, b=1) {
 #' @param b              Meta-parameter for the prior probability of rejection before convergence.
 #' 
 #' @export
-convergence_diagnostics <- function(samples, window_size = nrow(samples)/10, a = 1, b = 1) {
+convergence_diagnostics <- function(samples, window_size = nrow(samples)/20, a = 1, b = 1) {
   p_vals <- convergence_t_tests(samples, window_size)
   converged <- rejected_convergence(p_vals)
   change_probs <- convergence_probabilities(converged$rejected)
@@ -119,14 +119,12 @@ convergence_diagnostics <- function(samples, window_size = nrow(samples)/10, a =
 }
 
 plot.convergence_diag <- function(diag, ...) {
-  ylim = range(c(diag$convergence$change_point_probabilities, diag$not_converged))
   plot(diag$convergence$window.end, diag$convergence$change_point_probabilities,
        main='Convergence point probabilities',
        xlab='Convergence point', ylab='Convergence probability',
-       type='o', pch=20, ylim=ylim,
+       type='o', pch=20,
        ...)
   abline(v=diag$convergence_point, col='red', lty='dashed')
-  abline(h=diag$not_converged, col='red', lty='dashed')
 }
 
 #' @title Remove the estimated burn-in samples

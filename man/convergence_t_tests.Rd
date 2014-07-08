@@ -3,7 +3,7 @@
 \alias{convergence_t_tests}
 \title{Computes convergence diagnistics}
 \usage{
-convergence_t_tests(samples, window_size = nrow(samples)/10)
+convergence_t_tests(samples, window_size = nrow(samples)/20)
 }
 \arguments{
 \item{samples}{Samples from a CoalHMM MCMC run.}

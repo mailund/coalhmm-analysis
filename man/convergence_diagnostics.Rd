@@ -3,7 +3,7 @@
 \alias{convergence_diagnostics}
 \title{Computes convergence diagnostics}
 \usage{
-convergence_diagnostics(samples, window_size = nrow(samples)/10, a = 1,
+convergence_diagnostics(samples, window_size = nrow(samples)/20, a = 1,
   b = 1)
 }
 \arguments{
